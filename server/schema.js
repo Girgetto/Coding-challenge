@@ -10,7 +10,6 @@ const ListType = new GraphQLObjectType({
     _id: { type: GraphQLString },
     title: { type: GraphQLString },
   },
-
 });
 
 const ListItemType = new GraphQLObjectType({
@@ -46,7 +45,13 @@ const Mutation = new GraphQLObjectType({
         text: { type: GraphQLString },
       },
       resolve(parent, args) {
+        const list = new Lists({
+          title: 'New List',
+        });
+        list.save();
+
         const item = new ListItem({
+          list: list._id, //eslint-disable-line
           text: args.text,
         });
         return item.save();
