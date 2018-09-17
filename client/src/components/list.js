@@ -12,25 +12,23 @@ import Toggle from "react-toggle";
 export default class List extends React.Component {
   state = {
     listItem: [],
-    updatingId : '',
-    updatingText: '',
+    updatingId: "",
+    updatingText: ""
   };
 
-  handleUpdate(id,done,str) {
+  handleUpdate(id, done, str) {
     let bool = !done;
     axiosGraphQL
-      .post("", {query: UPDATE_ORGANIZATION(id,{done:bool,text:str})})
-      .then(()=> {
+      .post("", { query: UPDATE_ORGANIZATION(id, { done: bool, text: str }) })
+      .then(() => {
         this.componentDidMount();
       });
   }
 
   removeList(id) {
-    axiosGraphQL
-      .post("", { query: REMOVE_ORGANIZATION(id) })
-      .then(() => {
-        this.componentDidMount();
-      });
+    axiosGraphQL.post("", { query: REMOVE_ORGANIZATION(id) }).then(() => {
+      this.componentDidMount();
+    });
   }
 
   handleChange = event => {
@@ -38,11 +36,9 @@ export default class List extends React.Component {
   };
 
   handleSubmit = event => {
-    axiosGraphQL
-      .post("", { query: ADD_ITEM(this.state.value) })
-      .then(() => {
-        this.componentDidMount();
-      });
+    axiosGraphQL.post("", { query: ADD_ITEM(this.state.value) }).then(() => {
+      this.componentDidMount();
+    });
     event.preventDefault();
   };
 
@@ -56,6 +52,18 @@ export default class List extends React.Component {
       })
       .catch(err => console.error(err));
   }
+
+  array_move = (arr, old_index, new_index) => {
+    if (new_index >= arr.length) {
+      var k = new_index - arr.length + 1;
+      while (k--) {
+        arr.push(undefined);
+      }
+    }
+    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+
+    return arr;
+  };
 
   render() {
     const { listItem } = this.state;
@@ -76,18 +84,43 @@ export default class List extends React.Component {
         </div>
         <div>
           {listItem.length &&
-            listItem.map((item) => {
+            listItem.map(item => {
               const isItemUpdating = this.state.updatingId === item._id;
               return (
                 <div key={item._id}>
+                  <button
+                    onClick={event => {
+                      let index = listItem.indexOf(item);
+                      this.setState({
+                        listItem: this.array_move(listItem, index, --index)
+                      });
+                    }}
+                  >
+                    UP
+                  </button>
+                  <button
+                    onClick={event => {
+                      let index = listItem.indexOf(item);
+                      this.setState({
+                        listItem: this.array_move(listItem, index, ++index)
+                      });
+                    }}
+                  >
+                    DOWN
+                  </button>
                   <span>
-                    {isItemUpdating
-                      ? <input 
-                          defaultValue={item.text} 
-                          onChange={(event) => this.setState({ updatingText: event.target.value})}
-                        />
-                      : item.text}
-                    - {item.list.title} - {item._id}{" "}</span>
+                    {isItemUpdating ? (
+                      <input
+                        defaultValue={item.text}
+                        onChange={event =>
+                          this.setState({ updatingText: event.target.value })
+                        }
+                      />
+                    ) : (
+                      item.text
+                    )}
+                    - {item.list.title} - {item._id}{" "}
+                  </span>
                   <button
                     onClick={() => {
                       this.removeList(item._id);
@@ -98,24 +131,28 @@ export default class List extends React.Component {
                   <button
                     onClick={() => {
                       this.setState(prevState => ({
-                        updatingId: !isItemUpdating ? item._id : '',
-                        updatingText: item.text,
-                      }))
+                        updatingId: !isItemUpdating ? item._id : "",
+                        updatingText: item.text
+                      }));
                       if (this.state.updatingId) {
-                        this.handleUpdate(item._id, item.done, this.state.updatingText)
+                        this.handleUpdate(
+                          item._id,
+                          item.done,
+                          this.state.updatingText
+                        );
                       }
                     }}
-                  > 
-                    {isItemUpdating ? 'SAVE' : 'UPDATE'}
+                  >
+                    {isItemUpdating ? "SAVE" : "UPDATE"}
                   </button>
                   <Toggle
                     defaultChecked={item.done}
                     onChange={() => {
-                      this.handleUpdate(item._id,item.done,item.text);
+                      this.handleUpdate(item._id, item.done, item.text);
                     }}
                   />
                 </div>
-              )
+              );
             })}
         </div>
       </div>
