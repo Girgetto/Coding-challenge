@@ -4,7 +4,8 @@ import {
   GET_ORGANIZATION,
   ADD_ITEM,
   REMOVE_ORGANIZATION,
-  UPDATE_ORGANIZATION
+  UPDATE_ORGANIZATION,
+  UPDATE_LIST_ITEM
 } from "../lib/api";
 import get from "lodash/get";
 import Toggle from "react-toggle";
@@ -13,8 +14,18 @@ export default class List extends React.Component {
   state = {
     listItem: [],
     updatingId: "",
-    updatingText: ""
+    updatingText: "",
+    updatingIdList: "",
+    updatingTextList: ""
   };
+
+  listUpdate(id,title) {
+    axiosGraphQL
+      .post("",{ query: UPDATE_LIST_ITEM(id, { title })})
+      .then(()=>{
+        this.componentDidMount();
+      })
+  }
 
   handleUpdate(id, done, str) {
     let bool = !done;
@@ -86,42 +97,80 @@ export default class List extends React.Component {
           {listItem.length &&
             listItem.map(item => {
               const isItemUpdating = this.state.updatingId === item._id;
+              const isListUpdating =
+                this.state.updatingIdList === item.list._id;
               return (
                 <div key={item._id} className="list flex">
                   <div>
-                  <button
-                    onClick={event => {
-                      let index = listItem.indexOf(item);
-                      this.setState({
-                        listItem: this.array_move(listItem, index, --index)
-                      });
-                    }}
-                  >
-                    ⬆
-                  </button>
-                  <button
-                    onClick={event => {
-                      let index = listItem.indexOf(item);
-                      this.setState({
-                        listItem: this.array_move(listItem, index, ++index)
-                      });
-                    }}
-                  >
-                    ⬇
-                  </button>
-                  <span>
-                    {isItemUpdating ? (
-                      <input
-                        defaultValue={item.text}
-                        onChange={event =>
-                          this.setState({ updatingText: event.target.value })
-                        }
+                    <button
+                      onClick={event => {
+                        let index = listItem.indexOf(item);
+                        this.setState({
+                          listItem: this.array_move(listItem, index, --index)
+                        });
+                      }}
+                    >
+                      ⬆
+                    </button>
+                    <button
+                      onClick={event => {
+                        let index = listItem.indexOf(item);
+                        this.setState({
+                          listItem: this.array_move(listItem, index, ++index)
+                        });
+                      }}
+                    >
+                      ⬇
+                    </button>
+                    <span>
+                      TEXT:
+                      {isItemUpdating ? (
+                        <input
+                          defaultValue={item.text}
+                          onChange={event =>
+                            this.setState({ updatingText: event.target.value })
+                          }
+                        />
+                      ) : (
+                        item.text
+                      )}
+                      -
+                      {isListUpdating ? (
+                        <input
+                          defaultValue={item.list.title}
+                          onChange={event =>
+                            this.setState({
+                              updatingTextList: event.target.value
+                            })
+                          }
+                        />
+                      ) : (
+                        item.list.title
+                      )}
+                      <button
+                        onClick={event => {
+                          this.setState(() => ({
+                            updatingIdList: !isListUpdating
+                              ? item.list._id
+                              : "",
+                            updatingTextList: item.list.title
+                          }));
+                          if (this.state.updatingIdList) {
+                            this.listUpdate(item.list._id,this.state.updatingTextList);
+                              //TODO CHIAMARE LA API PER MODIFICARE LIST
+                          }
+                        }}
+                      >
+                        {isListUpdating ? "SAVE" : "EDIT"}
+                      </button>{" "}
+                      -
+                      <Toggle
+                        defaultChecked={item.done}
+                        onChange={() => {
+                          this.handleUpdate(item._id, item.done, item.text);
+                        }}
                       />
-                    ) : (
-                      item.text
-                    )}
-                    - {item.list.title} <button>EDIT</button>
-                  </span>
+                    </span>
                   </div>
                   <div>
                     <button
@@ -133,7 +182,7 @@ export default class List extends React.Component {
                     </button>
                     <button
                       onClick={() => {
-                        this.setState(prevState => ({
+                        this.setState(() => ({
                           updatingId: !isItemUpdating ? item._id : "",
                           updatingText: item.text
                         }));
@@ -148,12 +197,6 @@ export default class List extends React.Component {
                     >
                       {isItemUpdating ? "SAVE" : "UPDATE"}
                     </button>
-                    <Toggle
-                      defaultChecked={item.done}
-                      onChange={() => {
-                        this.handleUpdate(item._id, item.done, item.text);
-                      }}
-                    />
                   </div>
                 </div>
               );

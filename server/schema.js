@@ -79,6 +79,27 @@ const Mutation = new GraphQLObjectType({
         return result;
       },
     },
+    addList: {// TODO per fare questo bisogna cambiare la list dell'item in un array di objects
+      type: ListType,
+      args: {
+        _id: { type: GraphQLString },
+      },
+      async resolve(parent, id) {
+        const result = await Lists.findByIdAndRemove(id);
+        return result;
+      },
+    },
+    editList: {
+      type: ListType,
+      args: {
+        id: { type: GraphQLString },
+        title: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        const result = await Lists.findOneAndUpdate({ _id: args.id }, args);
+        return result;
+      },
+    },
   },
 });
 

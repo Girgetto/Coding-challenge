@@ -50,3 +50,14 @@ export const UPDATE_ORGANIZATION = ((id,args)=>{
     }
 `
 });
+
+export const UPDATE_LIST_ITEM = ((id,args)=>{
+  return `
+    mutation{
+      editList(id:"${id}",title:"${args.title}"){
+        _id
+        title
+      }
+    }
+`
+});
