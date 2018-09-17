@@ -5,7 +5,9 @@ import {
   ADD_ITEM,
   REMOVE_ORGANIZATION,
   UPDATE_ORGANIZATION,
-  UPDATE_LIST_ITEM
+  UPDATE_LIST_ITEM,
+  ADD_LIST,
+  REMOVE_LIST
 } from "../lib/api";
 import get from "lodash/get";
 import Toggle from "react-toggle";
@@ -19,12 +21,28 @@ export default class List extends React.Component {
     updatingTextList: ""
   };
 
-  listUpdate(id,title) {
+  deleteList(id) {
     axiosGraphQL
-      .post("",{ query: UPDATE_LIST_ITEM(id, { title })})
+      .post("", { query: REMOVE_LIST(id)})
       .then(()=>{
         this.componentDidMount();
       })
+  }
+
+  addList(id) {
+    axiosGraphQL
+      .post("", { query: ADD_LIST(id)})
+      .then(()=>{
+        this.componentDidMount();
+      })
+  }
+
+  listUpdate(id, title) {
+    axiosGraphQL
+      .post("", { query: UPDATE_LIST_ITEM(id, { title }) })
+      .then(() => {
+        this.componentDidMount();
+      });
   }
 
   handleUpdate(id, done, str) {
@@ -47,9 +65,12 @@ export default class List extends React.Component {
   };
 
   handleSubmit = event => {
-    axiosGraphQL.post("", { query: ADD_ITEM(this.state.value) }).then(() => {
-      this.componentDidMount();
-    });
+    if (this.state.value) {
+      axiosGraphQL.post("", { query: ADD_ITEM(this.state.value) }).then(() => {
+        this.componentDidMount();
+      });
+    }
+    this.state.value = "";
     event.preventDefault();
   };
 
@@ -97,8 +118,6 @@ export default class List extends React.Component {
           {listItem.length &&
             listItem.map(item => {
               const isItemUpdating = this.state.updatingId === item._id;
-              const isListUpdating =
-                this.state.updatingIdList === item.list._id;
               return (
                 <div key={item._id} className="list flex animated bounceInDown">
                   <div>
@@ -133,35 +152,51 @@ export default class List extends React.Component {
                       ) : (
                         item.text
                       )}
-                      -
-                      {isListUpdating ? (
-                        <input
-                          defaultValue={item.list.title}
-                          onChange={event =>
-                            this.setState({
-                              updatingTextList: event.target.value
-                            })
-                          }
-                        />
-                      ) : (
-                        item.list.title
-                      )}
-                      <button
-                        onClick={event => {
-                          this.setState(() => ({
-                            updatingIdList: !isListUpdating
-                              ? item.list._id
-                              : "",
-                            updatingTextList: item.list.title
-                          }));
-                          if (this.state.updatingIdList) {
-                            this.listUpdate(item.list._id,this.state.updatingTextList);
-                          }
-                        }}
-                      >
-                        {isListUpdating ? "SAVE" : "EDIT"}
-                      </button>{" "}
-                      -
+                      <button onClick={event=>{
+                        this.addList(item._id)
+                      }}>ADD LIST</button>  
+                      {item.list.map((element, i) => {
+                        const isListUpdating =
+                          this.state.updatingIdList === element._id;
+                        return (
+                          <div key={i}>
+                            {isListUpdating ? (
+                              <input
+                                defaultValue={element.title}
+                                onChange={event => {
+                                  this.setState({
+                                    updatingTextList: event.target.value
+                                  });
+                                }}
+                              />
+                            ) : (
+                              element.title
+                            )}
+                            <button
+                              onClick={event => {
+                                this.setState(() => ({
+                                  updatingIdList: !isListUpdating
+                                    ? element._id
+                                    : "",
+                                  updatingTextList: element.title
+                                }));
+                                if (this.state.updatingIdList) {
+                                  this.listUpdate(
+                                    element._id,
+                                    this.state.updatingTextList
+                                  );
+                                }
+                              }}
+                            >
+                              {isListUpdating ? "SAVE" : "EDIT"}
+                            </button>
+                            <button onClick={event=>{
+                              this.deleteList(element._id);
+                            }
+                            }>DELETE</button>
+                          </div>
+                        );
+                      })}
                       <Toggle
                         defaultChecked={item.done}
                         onChange={() => {

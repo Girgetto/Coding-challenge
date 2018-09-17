@@ -16,7 +16,7 @@ const ListItemType = new GraphQLObjectType({
   name: 'ListItems',
   fields: {
     _id: { type: GraphQLString },
-    list: { type: ListType },
+    list: { type: new GraphQLList(ListType) },
     done: { type: GraphQLBoolean },
     text: { type: GraphQLString },
   },
@@ -74,18 +74,30 @@ const Mutation = new GraphQLObjectType({
       args: {
         _id: { type: GraphQLString },
       },
-      async resolve(parent, id) {
-        const result = await ListItem.findByIdAndRemove(id);
-        return result;
+      resolve(parent, id) {
+        ListItem.findById(id)
+          .then((data) => {
+            data.list.map(element =>
+              Lists.findByIdAndRemove(element).then(() => {
+                const result = ListItem.findByIdAndRemove(id);
+                return result;
+              }).catch(err => console.log(err)));
+          })
+          .catch(err => console.log(err));
       },
     },
-    addList: {// TODO per fare questo bisogna cambiare la list dell'item in un array di objects
+    addList: {
       type: ListType,
       args: {
         _id: { type: GraphQLString },
       },
       async resolve(parent, id) {
-        const result = await Lists.findByIdAndRemove(id);
+        const list = new Lists({
+          title: 'New List',
+        });
+        list.save();
+
+        const result = ListItem.findByIdAndUpdate(id, { $push: { list: list._id } }, { new: true }); //eslint-disable-line
         return result;
       },
     },
@@ -97,6 +109,16 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         const result = await Lists.findOneAndUpdate({ _id: args.id }, args);
+        return result;
+      },
+    },
+    deleteList: {
+      type: ListType,
+      args: {
+        _id: { type: GraphQLString },
+      },
+      async resolve(parent, id) {
+        const result = await Lists.findByIdAndRemove(id);//eslint-disable-line
         return result;
       },
     },

@@ -62,3 +62,23 @@ export const UPDATE_LIST_ITEM = (id, args) => {
     }
 `;
 };
+
+export const ADD_LIST = (id) =>{
+  return `
+  mutation{
+    addList(_id:"${id}"){
+      _id
+    }
+  }
+  `
+}
+
+export const REMOVE_LIST = (id)=>{
+ return `
+  mutation{
+    deleteList(_id:"${id}"){
+      _id
+    }
+  }
+ `
+}

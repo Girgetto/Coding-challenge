@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const ListItem = new Schema({
-  list: { type: Schema.Types.ObjectId, ref: 'Lists' }, // TODO questo deve essere una array
+  list: [{ type: Schema.Types.ObjectId, ref: 'Lists' }],
   text: String,
   done: { type: Boolean, default: false },
 }, {
