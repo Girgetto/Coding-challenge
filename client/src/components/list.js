@@ -100,7 +100,7 @@ export default class List extends React.Component {
               const isListUpdating =
                 this.state.updatingIdList === item.list._id;
               return (
-                <div key={item._id} className="list flex">
+                <div key={item._id} className="list flex animated bounceInDown">
                   <div>
                     <button
                       onClick={event => {
@@ -123,7 +123,6 @@ export default class List extends React.Component {
                       ⬇
                     </button>
                     <span>
-                      TEXT:
                       {isItemUpdating ? (
                         <input
                           defaultValue={item.text}
@@ -157,7 +156,6 @@ export default class List extends React.Component {
                           }));
                           if (this.state.updatingIdList) {
                             this.listUpdate(item.list._id,this.state.updatingTextList);
-                              //TODO CHIAMARE LA API PER MODIFICARE LIST
                           }
                         }}
                       >
