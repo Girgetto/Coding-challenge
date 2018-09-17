@@ -1,6 +1,32 @@
+@font-face {
+  font-family: AvenirNext;
+  src: url(./assets/fonts/AvenirNext-Regular.ttf);
+}
+
+body {
+  font-family: AvenirNext;
+  background-color: rgb(98, 191, 235);
+}
+
+input{
+  padding-left:10px;
+  border-radius: 24px;
+}
+
 .flex {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+
+.list {
+  margin: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #fff;
+
+}
+
 
 .react-toggle {
     touch-action: pan-x;

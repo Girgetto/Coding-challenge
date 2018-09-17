@@ -87,7 +87,8 @@ export default class List extends React.Component {
             listItem.map(item => {
               const isItemUpdating = this.state.updatingId === item._id;
               return (
-                <div key={item._id}>
+                <div key={item._id} className="list flex">
+                  <div>
                   <button
                     onClick={event => {
                       let index = listItem.indexOf(item);
@@ -96,7 +97,7 @@ export default class List extends React.Component {
                       });
                     }}
                   >
-                    UP
+                    ⬆
                   </button>
                   <button
                     onClick={event => {
@@ -106,7 +107,7 @@ export default class List extends React.Component {
                       });
                     }}
                   >
-                    DOWN
+                    ⬇
                   </button>
                   <span>
                     {isItemUpdating ? (
@@ -119,38 +120,41 @@ export default class List extends React.Component {
                     ) : (
                       item.text
                     )}
-                    - {item.list.title} - {item._id}{" "}
+                    - {item.list.title} <button>EDIT</button>
                   </span>
-                  <button
-                    onClick={() => {
-                      this.removeList(item._id);
-                    }}
-                  >
-                    DELETE
-                  </button>
-                  <button
-                    onClick={() => {
-                      this.setState(prevState => ({
-                        updatingId: !isItemUpdating ? item._id : "",
-                        updatingText: item.text
-                      }));
-                      if (this.state.updatingId) {
-                        this.handleUpdate(
-                          item._id,
-                          item.done,
-                          this.state.updatingText
-                        );
-                      }
-                    }}
-                  >
-                    {isItemUpdating ? "SAVE" : "UPDATE"}
-                  </button>
-                  <Toggle
-                    defaultChecked={item.done}
-                    onChange={() => {
-                      this.handleUpdate(item._id, item.done, item.text);
-                    }}
-                  />
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => {
+                        this.removeList(item._id);
+                      }}
+                    >
+                      DELETE
+                    </button>
+                    <button
+                      onClick={() => {
+                        this.setState(prevState => ({
+                          updatingId: !isItemUpdating ? item._id : "",
+                          updatingText: item.text
+                        }));
+                        if (this.state.updatingId) {
+                          this.handleUpdate(
+                            item._id,
+                            item.done,
+                            this.state.updatingText
+                          );
+                        }
+                      }}
+                    >
+                      {isItemUpdating ? "SAVE" : "UPDATE"}
+                    </button>
+                    <Toggle
+                      defaultChecked={item.done}
+                      onChange={() => {
+                        this.handleUpdate(item._id, item.done, item.text);
+                      }}
+                    />
+                  </div>
                 </div>
               );
             })}
