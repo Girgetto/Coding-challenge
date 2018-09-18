@@ -128,9 +128,11 @@ export default class List extends React.Component {
                     <button
                       onClick={event => {
                         let index = listItem.indexOf(item);
-                        this.setState({
-                          listItem: this.array_move(listItem, index, --index)
-                        });
+                        if(index!=0){
+                          this.setState({
+                            listItem: this.array_move(listItem, index, --index)
+                          });
+                        }
                       }}
                     >
                       ⬆
@@ -138,9 +140,11 @@ export default class List extends React.Component {
                     <button
                       onClick={event => {
                         let index = listItem.indexOf(item);
-                        this.setState({
-                          listItem: this.array_move(listItem, index, ++index)
-                        });
+                        if(index!= item.list.length){
+                          this.setState({
+                            listItem: this.array_move(listItem, index, ++index)
+                          });
+                        }
                       }}
                     >
                       ⬇
