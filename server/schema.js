@@ -77,7 +77,7 @@ const Mutation = new GraphQLObjectType({
       resolve(parent, id) {
         ListItem.findByIdAndRemove(id)
           .then(removedistItem => removedistItem)
-          .catch(err => console.log(err));
+          .catch(err => console.log(err));//eslint-disable-line
       },
     },
     addList: {
