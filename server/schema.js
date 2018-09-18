@@ -75,14 +75,8 @@ const Mutation = new GraphQLObjectType({
         _id: { type: GraphQLString },
       },
       resolve(parent, id) {
-        ListItem.findById(id)
-          .then((data) => {
-            data.list.map(element =>
-              Lists.findByIdAndRemove(element).then(() => {
-                const result = ListItem.findByIdAndRemove(id);
-                return result;
-              }).catch(err => console.log(err)));
-          })
+        ListItem.findByIdAndRemove(id)
+          .then(removedistItem => removedistItem)
           .catch(err => console.log(err));
       },
     },

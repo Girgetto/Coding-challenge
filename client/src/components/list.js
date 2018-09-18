@@ -25,7 +25,7 @@ export default class List extends React.Component {
     axiosGraphQL
       .post("", { query: REMOVE_LIST(id)})
       .then(()=>{
-        this.componentDidMount();
+        this.getData();
       })
   }
 
@@ -33,7 +33,7 @@ export default class List extends React.Component {
     axiosGraphQL
       .post("", { query: ADD_LIST(id)})
       .then(()=>{
-        this.componentDidMount();
+        this.getData();
       })
   }
 
@@ -41,7 +41,7 @@ export default class List extends React.Component {
     axiosGraphQL
       .post("", { query: UPDATE_LIST_ITEM(id, { title }) })
       .then(() => {
-        this.componentDidMount();
+        this.getData();
       });
   }
 
@@ -50,13 +50,17 @@ export default class List extends React.Component {
     axiosGraphQL
       .post("", { query: UPDATE_ORGANIZATION(id, { done: bool, text: str }) })
       .then(() => {
-        this.componentDidMount();
+        this.getData();
       });
   }
 
   removeList(id) {
+    let selectedList = this.state.listItem.filter(list => list._id == id);
+    selectedList[0].list.map(elemItem => {
+      this.deleteList(elemItem._id);
+    })
     axiosGraphQL.post("", { query: REMOVE_ORGANIZATION(id) }).then(() => {
-      this.componentDidMount();
+      this.getData();
     });
   }
 
@@ -67,14 +71,14 @@ export default class List extends React.Component {
   handleSubmit = event => {
     if (this.state.value) {
       axiosGraphQL.post("", { query: ADD_ITEM(this.state.value) }).then(() => {
-        this.componentDidMount();
+        this.getData();
       });
     }
     this.state.value = "";
     event.preventDefault();
   };
 
-  componentDidMount() {
+  getData() {
     axiosGraphQL
       .post("", { query: GET_ORGANIZATION })
       .then(({ data }) => {
