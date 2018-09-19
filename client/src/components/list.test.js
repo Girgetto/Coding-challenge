@@ -2,11 +2,6 @@ import {
   axiosGraphQL,
   GET_ORGANIZATION,
   ADD_ITEM,
-  REMOVE_ORGANIZATION,
-  UPDATE_ORGANIZATION,
-  UPDATE_LIST_ITEM,
-  ADD_LIST,
-  REMOVE_LIST
 } from "../lib/api";
 
 describe("componentDidMount()", () => {
@@ -32,7 +27,7 @@ describe("Add single card", () => {
     value: "Hola"
   };
 
-  it("", () => {
+  it("should add a single card in ListItem", () => {
     return axiosGraphQL
         .post("", { query: ADD_ITEM(state.value) })
         .then(({data})=>{
