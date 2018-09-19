@@ -11,6 +11,7 @@ import {
 } from "../lib/api";
 import get from "lodash/get";
 import Toggle from "react-toggle";
+import logo from '../assets/img/descarga.png'
 
 export default class List extends React.Component {
   state = {
@@ -22,19 +23,15 @@ export default class List extends React.Component {
   };
 
   deleteList(id) {
-    axiosGraphQL
-      .post("", { query: REMOVE_LIST(id)})
-      .then(()=>{
-        this.componentDidMount();
-      })
+    axiosGraphQL.post("", { query: REMOVE_LIST(id) }).then(() => {
+      this.componentDidMount();
+    });
   }
 
   addList(id) {
-    axiosGraphQL
-      .post("", { query: ADD_LIST(id)})
-      .then(()=>{
-        this.componentDidMount();
-      })
+    axiosGraphQL.post("", { query: ADD_LIST(id) }).then(() => {
+      this.componentDidMount();
+    });
   }
 
   listUpdate(id, title) {
@@ -58,7 +55,7 @@ export default class List extends React.Component {
     let selectedList = this.state.listItem.filter(list => list._id == id);
     selectedList[0].list.map(elemItem => {
       this.deleteList(elemItem._id);
-    })
+    });
     axiosGraphQL.post("", { query: REMOVE_ORGANIZATION(id) }).then(() => {
       this.componentDidMount();
     });
@@ -108,27 +105,32 @@ export default class List extends React.Component {
         <div className="flex">
           <form onSubmit={this.handleSubmit}>
             <label>
-              Add:
+              ADD CARD
               <input
                 type="text"
                 value={this.state.value}
                 onChange={this.handleChange}
               />
             </label>
-            <input type="submit" value="Submit" />
           </form>
+          <div className="flex">
+          <img src={logo} className="logo"></img>
+          <h1>Iron Notes</h1>
+          </div>
         </div>
         <div>
-          {listItem.length &&
+          {listItem.length==0 ? '':
+          listItem.length &&
             listItem.map(item => {
               const isItemUpdating = this.state.updatingId === item._id;
               return (
                 <div key={item._id} className="list flex animated bounceInDown">
                   <div>
                     <button
+                      className="arrow-button"
                       onClick={event => {
                         let index = listItem.indexOf(item);
-                        if(index!=0){
+                        if (index != 0) {
                           this.setState({
                             listItem: this.array_move(listItem, index, --index)
                           });
@@ -138,9 +140,10 @@ export default class List extends React.Component {
                       ⬆
                     </button>
                     <button
+                      className="arrow-button"
                       onClick={event => {
                         let index = listItem.indexOf(item);
-                        if(index!= item.list.length){
+                        if (index!=listItem.length-1) {
                           this.setState({
                             listItem: this.array_move(listItem, index, ++index)
                           });
@@ -160,51 +163,79 @@ export default class List extends React.Component {
                       ) : (
                         item.text
                       )}
-                      <button onClick={event=>{
-                        this.addList(item._id)
-                      }}>ADD LIST</button>  
-                      {item.list.map((element, i) => {
-                        const isListUpdating =
-                          this.state.updatingIdList === element._id;
-                        return (
-                          <div key={i}>
-                            {isListUpdating ? (
-                              <input
-                                defaultValue={element.title}
-                                onChange={event => {
-                                  this.setState({
-                                    updatingTextList: event.target.value
-                                  });
+                      <button
+                        onClick={() => {
+                          this.setState(() => ({
+                            updatingId: !isItemUpdating ? item._id : "",
+                            updatingText: item.text
+                          }));
+                          if (this.state.updatingId) {
+                            this.handleUpdate(
+                              item._id,
+                              item.done,
+                              this.state.updatingText
+                            );
+                          }
+                        }}
+                      >
+                        {isItemUpdating ? "SAVE" : "UPDATE"}
+                      </button>
+                      <button
+                        onClick={event => {
+                          this.addList(item._id);
+                        }}
+                      >
+                        + ADD LIST
+                      </button>
+                      <div className="item">
+                        {item.list.map((element, i) => {
+                          const isListUpdating =
+                            this.state.updatingIdList === element._id;
+                          return (
+                            <div key={i}>
+                              {isListUpdating ? (
+                                <input
+                                  defaultValue={element.title}
+                                  onChange={event => {
+                                    this.setState({
+                                      updatingTextList: event.target.value
+                                    });
+                                  }}
+                                />
+                              ) : (
+                                element.title
+                              )}
+                              <button
+                                className="arrow-button"
+                                onClick={event => {
+                                  this.setState(() => ({
+                                    updatingIdList: !isListUpdating
+                                      ? element._id
+                                      : "",
+                                    updatingTextList: element.title
+                                  }));
+                                  if (this.state.updatingIdList) {
+                                    this.listUpdate(
+                                      element._id,
+                                      this.state.updatingTextList
+                                    );
+                                  }
                                 }}
-                              />
-                            ) : (
-                              element.title
-                            )}
-                            <button
-                              onClick={event => {
-                                this.setState(() => ({
-                                  updatingIdList: !isListUpdating
-                                    ? element._id
-                                    : "",
-                                  updatingTextList: element.title
-                                }));
-                                if (this.state.updatingIdList) {
-                                  this.listUpdate(
-                                    element._id,
-                                    this.state.updatingTextList
-                                  );
-                                }
-                              }}
-                            >
-                              {isListUpdating ? "SAVE" : "EDIT"}
-                            </button>
-                            <button onClick={event=>{
-                              this.deleteList(element._id);
-                            }
-                            }>DELETE</button>
-                          </div>
-                        );
-                      })}
+                              >
+                                {isListUpdating ? "SAVE" : "EDIT"}
+                              </button>
+                              <button
+                                className="arrow-button"
+                                onClick={event => {
+                                  this.deleteList(element._id);
+                                }}
+                              >
+                                DELETE
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
                       <Toggle
                         defaultChecked={item.done}
                         onChange={() => {
@@ -219,24 +250,7 @@ export default class List extends React.Component {
                         this.removeList(item._id);
                       }}
                     >
-                      DELETE
-                    </button>
-                    <button
-                      onClick={() => {
-                        this.setState(() => ({
-                          updatingId: !isItemUpdating ? item._id : "",
-                          updatingText: item.text
-                        }));
-                        if (this.state.updatingId) {
-                          this.handleUpdate(
-                            item._id,
-                            item.done,
-                            this.state.updatingText
-                          );
-                        }
-                      }}
-                    >
-                      {isItemUpdating ? "SAVE" : "UPDATE"}
+                      DELETE CARD
                     </button>
                   </div>
                 </div>
