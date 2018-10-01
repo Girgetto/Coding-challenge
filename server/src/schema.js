@@ -1,8 +1,7 @@
 const {
   GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLBoolean, GraphQLList,
 } = require('graphql');
-const Lists = require('./models/list');
-const ListItem = require('./models/listItem');
+const dataStore = require('./dataStore');
 
 const ListType = new GraphQLObjectType({
   name: 'List',
@@ -28,10 +27,7 @@ const Query = new GraphQLObjectType({
   fields: {
     ListItem: {
       type: new GraphQLList(ListItemType),
-      async resolve() {
-        const result = await ListItem.find({}).populate('list', Lists);
-        return result;
-      },
+      resolve: () => dataStore.getData(),
     },
   },
 });
@@ -44,18 +40,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         text: { type: GraphQLString },
       },
-      resolve(parent, args) {
-        const list = new Lists({
-          title: 'New List',
-        });
-        list.save();
-
-        const item = new ListItem({
-          list: list._id, //eslint-disable-line
-          text: args.text,
-        });
-        return item.save();
-      },
+      resolve: args => dataStore.addItem(args),
     },
     updateItem: {
       type: ListItemType,
@@ -64,36 +49,21 @@ const Mutation = new GraphQLObjectType({
         text: { type: GraphQLString },
         done: { type: GraphQLBoolean },
       },
-      async resolve(parent, args) {
-        const result = await ListItem.findOneAndUpdate({ _id: args.id }, args);
-        return result;
-      },
+      resolve: (parent, args) => dataStore.updateItem(parent, args),
     },
     removeItem: {
       type: ListItemType,
       args: {
         _id: { type: GraphQLString },
       },
-      resolve(parent, id) {
-        ListItem.findByIdAndRemove(id)
-          .then(removedistItem => removedistItem)
-          .catch(err => console.log(err));//eslint-disable-line
-      },
+      resolve: (parent, args) => dataStore.removeItem(parent, args),
     },
     addList: {
       type: ListType,
       args: {
         _id: { type: GraphQLString },
       },
-      async resolve(parent, id) {
-        const list = new Lists({
-          title: 'New List',
-        });
-        list.save();
-
-        const result = ListItem.findByIdAndUpdate(id, { $push: { list: list._id } }, { new: true }); //eslint-disable-line
-        return result;
-      },
+      resolve: (parent, id) => dataStore.addList(parent, id),
     },
     editList: {
       type: ListType,
@@ -101,20 +71,14 @@ const Mutation = new GraphQLObjectType({
         id: { type: GraphQLString },
         title: { type: GraphQLString },
       },
-      async resolve(parent, args) {
-        const result = await Lists.findOneAndUpdate({ _id: args.id }, args);
-        return result;
-      },
+      resolve: (parent, args) => dataStore.editList(parent, args),
     },
     deleteList: {
       type: ListType,
       args: {
         _id: { type: GraphQLString },
       },
-      async resolve(parent, id) {
-        const result = await Lists.findByIdAndRemove(id);//eslint-disable-line
-        return result;
-      },
+      resolve: (parent, id) => dataStore.deleteList(parent, id),
     },
   },
 });

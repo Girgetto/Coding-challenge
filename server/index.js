@@ -1,7 +1,7 @@
 const express = require('express');
 const GraphHTTP = require('express-graphql');
 const bodyParser = require('body-parser');
-const Schema = require('./schema').default;
+const Schema = require('./src/schema').default;
 const mongoose = require('mongoose');
 
 const APP_PORT = 4000;
