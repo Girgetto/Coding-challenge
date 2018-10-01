@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const axiosGraphQL = axios.create({
-  baseURL: "http://localhost:4000/graphql"
+  baseURL: process.env.REACT_APP_URL,
 });
 
 export const GET_ORGANIZATION = `
