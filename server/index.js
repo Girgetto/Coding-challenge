@@ -3,12 +3,14 @@ const GraphHTTP = require('express-graphql');
 const bodyParser = require('body-parser');
 const Schema = require('./src/schema').default;
 const mongoose = require('mongoose');
+require('dotenv').config();
 
-const APP_PORT = 4000;
+const { APP_PORT } = process.env;
+const { DB } = process.env;
 const app = express();
 
 mongoose
-  .connect('mongodb://localhost:27017/ih-coding-challenge', { useNewUrlParser: true })
+  .connect(DB, { useNewUrlParser: true })
   .then(() => {
     console.log('Connected to Mongo!'); // eslint-disable-line no-console
   })

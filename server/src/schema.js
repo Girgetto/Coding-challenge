@@ -40,7 +40,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         text: { type: GraphQLString },
       },
-      resolve: args => dataStore.addItem(args),
+      resolve: (parent, args) => dataStore.addItem(args),
     },
     updateItem: {
       type: ListItemType,

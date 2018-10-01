@@ -39,7 +39,7 @@ export default class List extends React.Component {
 
   addList = (id) => {
     this.setState({ hasRequested: true })
-
+    
     axiosGraphQL
       .post("", { query: ADD_LIST(id) })
       .then(() => {
