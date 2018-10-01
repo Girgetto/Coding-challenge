@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import List from "./components/list";
-import { list, listItems } from "./fake-data/index";
+import List from "./components/List";
+
 import './style.css';
 
 class App extends React.Component {
